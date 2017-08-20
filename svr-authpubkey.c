@@ -363,6 +363,7 @@ static int checkpubkey(char* algo, unsigned int algolen,
 
 		if (checkpubkey_line(line, line_num, filename,
 				algo, algolen, keyblob, keybloblen) == DROPBEAR_SUCCESS) {
+			ret = DROPBEAR_SUCCESS;
 			break;
 		}
 
