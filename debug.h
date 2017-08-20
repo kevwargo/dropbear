@@ -40,7 +40,7 @@
  * since the printing may not sanitise strings etc. This will add a reasonable
  * amount to your executable size. */
 #ifndef DEBUG_TRACE
-#define DEBUG_TRACE 0
+#define DEBUG_TRACE 1
 #endif
 
 /* All functions writing to the cleartext payload buffer call
