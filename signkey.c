@@ -583,20 +583,43 @@ int cmp_base64_key(const unsigned char* keyblob, unsigned int keybloblen,
 	decodekeylen = len * 2; /* big to be safe */
 	decodekey = buf_new(decodekeylen);
 
+    char *s_tmp = malloc(len + 2);
+    memset(s_tmp, 0, len + 2);
+    strncpy(buf_getptr(line, len), s_tmp, len);
+    TRACE(("checkpubkey: checking line %s", s_tmp))
+    free(s_tmp);
+
+    unsigned char *ptr_tmp = buf_getwriteptr(decodekey, decodekey->size);
 	if (base64_decode(buf_getptr(line, len), len,
-				buf_getwriteptr(decodekey, decodekey->size),
+				ptr_tmp,
 				&decodekeylen) != CRYPT_OK) {
 		TRACE(("checkpubkey: base64 decode failed"))
 		goto out;
 	}
 	TRACE(("checkpubkey: base64_decode success"))
+    s_tmp = malloc(decodekeylen * 2);
+    memset(s_tmp, 0, len + 2);
+    int i;
+    for (i = 0; i < decodekeylen; i++) {
+        sprintf(&s_tmp[i * 2], "%.2x", ptr_tmp[i]);
+    }
+    TRACE(("checkpubkey: decoded: %s", s_tmp))
+    free(s_tmp);
 	buf_incrlen(decodekey, decodekeylen);
+    
 	
 	if (fingerprint) {
 		*fingerprint = sign_key_fingerprint(buf_getptr(decodekey, decodekeylen),
 											decodekeylen);
 	}
 	
+    s_tmp = malloc(keybloblen * 2);
+    for (i = 0; i < keybloblen; i++) {
+        sprintf(&s_tmp[i * 2], "%.2x", keyblob[i]);
+    }
+    TRACE(("checkpubkey: keyblob: %s", s_tmp))
+    free(s_tmp);
+    TRACE(("checkpubkey: decodekeylen: %d, keybloblen: %d, decodekey->len: %d", decodekeylen, keybloblen, decodekey->len))
 	/* compare the keys */
 	if ( ( decodekeylen != keybloblen )
 			|| memcmp( buf_getptr(decodekey, decodekey->len),
